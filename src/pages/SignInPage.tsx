@@ -1,4 +1,8 @@
+
+
 const SignInPage = () => {
-  return <div>SignInPage</div>;
+  return (
+    <div>Sign in page</div>
+  );
 };
 export default SignInPage;
