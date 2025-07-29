@@ -1,10 +1,7 @@
-import AuthContainer from "../components/auth/AuthContainer.tsx";
+import SignUpForm from '../components/auth/SignUpForm';
 
 const SignUpPage = () => {
-  return (
-    <AuthContainer title={`Sign in`} description={`Create an account`}>
-      <div>SignUpPage</div>
-    </AuthContainer>
-  );
+  return <SignUpForm />;
 };
+
 export default SignUpPage;
