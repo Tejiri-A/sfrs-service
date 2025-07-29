@@ -13,7 +13,7 @@ This is a Project Proposal Management System with three user roles: Client, Revi
 
 2. **Set up your environment variables**:
    - Copy your project URL and anon key from the Supabase dashboard
-   - Update the `.env` file:
+   - Create an `.env.local` file:
      ```env
      VITE_SUPABASE_URL=your_project_url_here
      VITE_SUPABASE_ANON_KEY=your_anon_key_here
