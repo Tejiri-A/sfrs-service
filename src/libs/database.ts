@@ -23,7 +23,7 @@ export interface DatabaseService {
   updateUserRole(userId: string, role: UserRole): Promise<{ error: string | null }>;
   
   // Project proposal methods
-  createProposal(proposal: CreateProposalForm, clientId: string): Promise<{ proposal: ProjectProposal | null; error: string | null }>;
+  createProposal(proposal: CreateProposalForm): Promise<{ proposal: ProjectProposal | null; error: string | null }>;
   updateProposal(proposalId: string, proposal: Partial<CreateProposalForm>): Promise<{ error: string | null }>;
   getProposal(id: string): Promise<ProjectProposalWithDetails | null>;
   

@@ -149,15 +149,21 @@ export class SupabaseService implements DatabaseService {
     }
   }
 
-  async createProposal(proposal: CreateProposalForm, clientId: string) {
+  async createProposal(proposal: CreateProposalForm) {
     try {
+      const user = await this.getCurrentUser()
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
       const newProposal = {
         ...proposal,
-        client_id: clientId,
+        client_id: user.id,
         status: 'waiting_for_review' as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
+
+      console.log({newProposal})
 
       const { data, error } = await supabase
         .from('project_proposals')

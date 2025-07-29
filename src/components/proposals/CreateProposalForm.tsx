@@ -34,7 +34,7 @@ export default function CreateProposalForm({ onSuccess, onCancel }: CreatePropos
 
     setIsSubmitting(true);
     try {
-      const { error } = await databaseService.createProposal(data, user.id);
+      const { error } = await databaseService.createProposal(data);
       
       if (error) {
         toast.error(error);

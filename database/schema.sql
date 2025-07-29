@@ -58,76 +58,6 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 CREATE TRIGGER update_project_proposals_updated_at BEFORE UPDATE ON project_proposals
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Enable Row Level Security
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE project_proposals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE proposal_actions ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies
-
--- Users can view their own profile
-CREATE POLICY "Users can view own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
-
--- Users can update their own profile (except role)
-CREATE POLICY "Users can update own profile" ON users
-  FOR UPDATE USING (auth.uid() = id);
-
--- Project proposals policies
--- Clients can view their own proposals
-CREATE POLICY "Clients can view own proposals" ON project_proposals
-  FOR SELECT USING (
-    client_id = auth.uid() OR
-    EXISTS (
-      SELECT 1 FROM users 
-      WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
-    )
-  );
-
--- Clients can create proposals
-CREATE POLICY "Clients can create proposals" ON project_proposals
-  FOR INSERT WITH CHECK (
-    client_id = auth.uid() AND
-    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'client')
-  );
-
--- Clients can update their own proposals when status allows
-CREATE POLICY "Clients can update own proposals" ON project_proposals
-  FOR UPDATE USING (
-    client_id = auth.uid() AND
-    status IN ('draft', 'sent_back_to_client') AND
-    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'client')
-  );
-
--- Reviewers and approvers can update proposals
-CREATE POLICY "Reviewers and approvers can update proposals" ON project_proposals
-  FOR UPDATE USING (
-    EXISTS (
-      SELECT 1 FROM users 
-      WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
-    )
-  );
-
--- Proposal actions policies
--- Users can view actions for proposals they have access to
-CREATE POLICY "Users can view proposal actions" ON proposal_actions
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM project_proposals p
-      WHERE p.id = proposal_id AND (
-        p.client_id = auth.uid() OR
-        EXISTS (
-          SELECT 1 FROM users 
-          WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
-        )
-      )
-    )
-  );
-
--- Users can create actions
-CREATE POLICY "Users can create proposal actions" ON proposal_actions
-  FOR INSERT WITH CHECK (user_id = auth.uid());
-
 -- Create a function to handle user registration
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
@@ -147,3 +77,75 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- I haven't figured out how to get these RLS policies working yet
+
+-- -- Enable Row Level Security
+-- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE project_proposals ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE proposal_actions ENABLE ROW LEVEL SECURITY;
+
+-- -- RLS Policies
+
+-- -- Users can view their own profile
+-- CREATE POLICY "Users can view own profile" ON users
+--   FOR SELECT USING (auth.uid() = id);
+
+-- -- Users can update their own profile (except role)
+-- CREATE POLICY "Users can update own profile" ON users
+--   FOR UPDATE USING (auth.uid() = id);
+
+-- -- Project proposals policies
+-- -- Clients can view their own proposals
+-- CREATE POLICY "Clients can view own proposals" ON project_proposals
+--   FOR SELECT USING (
+--     client_id = auth.uid() OR
+--     EXISTS (
+--       SELECT 1 FROM users 
+--       WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
+--     )
+--   );
+
+-- -- Clients can create proposals
+-- CREATE POLICY "Clients can create proposals" ON project_proposals
+--   FOR INSERT WITH CHECK (
+--     client_id = auth.uid() AND
+--     EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'client')
+--   );
+
+-- -- Clients can update their own proposals when status allows
+-- CREATE POLICY "Clients can update own proposals" ON project_proposals
+--   FOR UPDATE USING (
+--     client_id = auth.uid() AND
+--     status IN ('draft', 'sent_back_to_client') AND
+--     EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'client')
+--   );
+
+-- -- Reviewers and approvers can update proposals
+-- CREATE POLICY "Reviewers and approvers can update proposals" ON project_proposals
+--   FOR UPDATE USING (
+--     EXISTS (
+--       SELECT 1 FROM users 
+--       WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
+--     )
+--   );
+
+-- -- Proposal actions policies
+-- -- Users can view actions for proposals they have access to
+-- CREATE POLICY "Users can view proposal actions" ON proposal_actions
+--   FOR SELECT USING (
+--     EXISTS (
+--       SELECT 1 FROM project_proposals p
+--       WHERE p.id = proposal_id AND (
+--         p.client_id = auth.uid() OR
+--         EXISTS (
+--           SELECT 1 FROM users 
+--           WHERE id = auth.uid() AND role IN ('reviewer', 'approver')
+--         )
+--       )
+--     )
+--   );
+
+-- -- Users can create actions
+-- CREATE POLICY "Users can create proposal actions" ON proposal_actions
+--   FOR INSERT WITH CHECK (user_id = auth.uid());
