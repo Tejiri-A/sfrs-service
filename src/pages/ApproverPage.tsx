@@ -1,6 +1,10 @@
+import Navbar from "../components/Navbar.tsx";
+
 const ApproverPage = () => {
   return (
-    <div>ApproverPage</div>
+    <>
+      <Navbar/>
+    </>
   );
 };
 export default ApproverPage;

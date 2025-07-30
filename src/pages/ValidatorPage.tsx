@@ -1,6 +1,10 @@
+import Navbar from "../components/Navbar.tsx";
+
 const ValidatorPage = () => {
   return (
-    <div>ValidatorPage</div>
+    <>
+      <Navbar/>
+    </>
   );
 };
 export default ValidatorPage;

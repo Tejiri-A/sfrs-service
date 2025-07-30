@@ -1,6 +1,10 @@
+import Navbar from "../components/Navbar.tsx";
+
 const ClientPage = () => {
   return (
-    <div>ClientPage</div>
+    <>
+      <Navbar/>
+    </>
   );
 };
 export default ClientPage;
