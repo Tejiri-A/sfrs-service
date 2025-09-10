@@ -1,25 +1,17 @@
-import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button.tsx";
-import { supabase } from "../libs/supabase.ts";
-import { toast } from "sonner";
-import { ROUTES } from "../libs/constants.ts";
+
+import { useSignOut } from "../hooks/useSignOut.ts";
 
 const Navbar = () => {
-  const navigate = useNavigate();
+  const { mutate: signOut, isPending } = useSignOut();
 
-  const signOut = async () => {
-    const {error} = await supabase.auth.signOut();
-    if(error){
-      toast.error(`Failed to sign out: ${error.message}`)
-    }
-    else{
-      toast.success(`Logged out successfully!`)
-      navigate(ROUTES.SIGN_IN)
-    }
-  }
   return (
-    <header className={`sticky top-0 left-0 z-50 w-full border-b bg-background/95 `}>
-      <div className={`container mx-auto my-0 flex h-14 items-center justify-between`}>
+    <header
+      className={`sticky top-0 left-0 z-50 w-full border-b bg-background/95 `}
+    >
+      <div
+        className={`container mx-auto my-0 flex h-14 items-center justify-between`}
+      >
         <div className={`flex items-center gap-2`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +27,9 @@ const Navbar = () => {
           </svg>
           <span className={`font-bold`}>SFRS Service Request</span>
         </div>
-        <Button variant={`outline`} size={`sm`} onClick={signOut}>sign out</Button>
+        <Button variant={`outline`} size={`sm`} onClick={signOut}>
+          {isPending ? "Signing out" : "Sign out"}
+        </Button>
       </div>
     </header>
   );

@@ -10,12 +10,12 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_, session) => {
       setLoading(true);
       const currentUser = session?.user ?? null;
 
       if (currentUser) {
-        // Get user role from public.users table
+        // Get user role from the public users table
         const { data: userData } = await supabase
           .from("users")
           .select("role")
@@ -32,7 +32,7 @@ export function useAuth() {
       setLoading(false);
     });
 
-    // Check current session on initial load
+    // Check the current session on an initial load
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
